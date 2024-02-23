@@ -39,10 +39,10 @@ class MineSweeperGUI:
         self.easy_button = Button(text="Easy", font=FONT, command=lambda: self.choose_difficulty("easy"))
         self.easy_button.grid(column=0, row=1, padx=50)
 
-        self.medium_button = Button(text="Medium", font=FONT, command=self.medium_setup)
+        self.medium_button = Button(text="Medium", font=FONT, command=lambda: self.choose_difficulty("medium"))
         self.medium_button.grid(column=1, row=1, )
 
-        self.hard_button = Button(text="Hard", font=FONT, command=self.hard_setup)
+        self.hard_button = Button(text="Hard", font=FONT, command=lambda: self.choose_difficulty("hard"))
         self.hard_button.grid(column=2, row=1, padx=50)
 
         self.easy_label = Label(text=f"{EASY_SIDE} x {EASY_SIDE}\n{EASY_MINES} mines", font=FONT)
@@ -65,7 +65,9 @@ class MineSweeperGUI:
 
     def easy_setup(self):
         self.remove_intro_menu()
-        self.window.minsize(height=150, width=150)
+        height = self.side * 25
+        width = self.side *25
+        self.window.minsize(height=height, width=width)
         self.build_button_board(self.side, self.number_of_mines)
 
         for r in range(self.side):
@@ -74,14 +76,29 @@ class MineSweeperGUI:
                 self.real_board[r][c].grid(column=c, row=r)
 
 
-
-
-
     def medium_setup(self):
-        pass
+        self.remove_intro_menu()
+        height = self.side * 25
+        width = self.side * 25
+        self.window.minsize(height=height, width=width)
+        self.build_button_board(self.side, self.number_of_mines)
+
+        for r in range(self.side):
+            for c in range(self.side):
+                self.real_board[r][c].config(command=partial(self.click_square, r, c))
+                self.real_board[r][c].grid(column=c, row=r)
 
     def hard_setup(self):
-        pass
+        self.remove_intro_menu()
+        height = self.side * 25
+        width = self.side * 25
+        self.window.minsize(height=height, width=width)
+        self.build_button_board(self.side, self.number_of_mines)
+
+        for r in range(self.side):
+            for c in range(self.side):
+                self.real_board[r][c].config(command=partial(self.click_square, r, c))
+                self.real_board[r][c].grid(column=c, row=r)
 
     def choose_difficulty(self, difficulty):
         if difficulty == "easy":
@@ -91,8 +108,16 @@ class MineSweeperGUI:
             self.moves_left = (self.side * self.side) - self.number_of_mines
             self.easy_setup()
         elif difficulty == "medium":
+            self.game.set_difficulty("medium")
+            self.side = self.game.get_side()
+            self.number_of_mines = self.game.get_num_mines()
+            self.moves_left = (self.side * self.side) - self.number_of_mines
             self.medium_setup()
         elif difficulty == "hard":
+            self.game.set_difficulty("hard")
+            self.side = self.game.get_side()
+            self.number_of_mines = self.game.get_num_mines()
+            self.moves_left = (self.side * self.side) - self.number_of_mines
             self.hard_setup()
 
     def click_square(self, row, col):
@@ -196,6 +221,9 @@ class MineSweeperGUI:
         self.three_img = PhotoImage(file="./images/ThreeMinesPNG.png")
         self.four_img = PhotoImage(file="./images/FourMinesPNG.png")
         self.five_img = PhotoImage(file="./images/FiveMinesPNG.png")
+        self.six_img = PhotoImage(file="./images/SixMinesPNG.png")
+        self.seven_img = PhotoImage(file="./images/SevenMinesPNG.png")
+        self.eight_img = PhotoImage(file="./images/EightMinesPNG.png")
 
         self.images_list = []
         self.images_list.append(self.zero_img)
@@ -204,3 +232,6 @@ class MineSweeperGUI:
         self.images_list.append(self.three_img)
         self.images_list.append(self.four_img)
         self.images_list.append(self.five_img)
+        self.images_list.append(self.six_img)
+        self.images_list.append(self.seven_img)
+        self.images_list.append(self.eight_img)

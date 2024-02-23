@@ -1,17 +1,15 @@
 import random
 
 EASY_SIDE = 6
-EASY_MINES = 5
+EASY_MINES = 6
 MEDIUM_SIDE = 12
-MEDIUM_MINES = 10
+MEDIUM_MINES = 24
 HARD_SIDE = 20
-HARD_MINES = 15
+HARD_MINES = 66
 class MineSweeper:
 
     def __init__(self):
         self.board = []
-
-
 
     def make_board(self, side):
         for r in range(side):
@@ -57,10 +55,15 @@ class MineSweeper:
         elif difficulty == "medium":
             self.side = MEDIUM_SIDE
             self.num_mines = MEDIUM_MINES
-
+            self.make_board(self.side)
+            self.place_mines(self.side, self.num_mines)
+            self.moves_left = self.side * self.side
         elif difficulty == "hard":
             self.side = HARD_SIDE
             self.num_mines = HARD_MINES
+            self.make_board(self.side)
+            self.place_mines(self.side, self.num_mines)
+            self.moves_left = self.side * self.side
 
         else:
             print("error")
