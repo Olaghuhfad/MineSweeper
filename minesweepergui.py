@@ -107,7 +107,6 @@ class MineSweeperGUI:
             self.hard_setup()
 
     def click_square(self, row, col):
-        print("left click")
         if self.game.is_mine(row, col):
             self.real_board[row][col].config(image=self.mine_img)
             print("mine hit game over")
@@ -208,7 +207,6 @@ class MineSweeperGUI:
                 self.real_board[r][c].bind("<Button-3>", self.flag_a_mine)
 
     def flag_a_mine(self, event):
-        print("right click")
         # event.widget access what was right clicked
         if event.widget.cget("image") == str(self.square_img):
             event.widget.configure(image=self.flag_img)
