@@ -70,23 +70,12 @@ class MineSweeperGUI:
         self.window.minsize(height=height, width=width)
         self.build_button_board(self.side, self.number_of_mines)
 
-        for r in range(self.side):
-            for c in range(self.side):
-                self.real_board[r][c].config(command=partial(self.click_square, r, c))
-                self.real_board[r][c].grid(column=c, row=r)
-
-
     def medium_setup(self):
         self.remove_intro_menu()
         height = self.side * 25
         width = self.side * 25
         self.window.minsize(height=height, width=width)
         self.build_button_board(self.side, self.number_of_mines)
-
-        for r in range(self.side):
-            for c in range(self.side):
-                self.real_board[r][c].config(command=partial(self.click_square, r, c))
-                self.real_board[r][c].grid(column=c, row=r)
 
     def hard_setup(self):
         self.remove_intro_menu()
@@ -95,10 +84,7 @@ class MineSweeperGUI:
         self.window.minsize(height=height, width=width)
         self.build_button_board(self.side, self.number_of_mines)
 
-        for r in range(self.side):
-            for c in range(self.side):
-                self.real_board[r][c].config(command=partial(self.click_square, r, c))
-                self.real_board[r][c].grid(column=c, row=r)
+
 
     def choose_difficulty(self, difficulty):
         if difficulty == "easy":
@@ -121,7 +107,7 @@ class MineSweeperGUI:
             self.hard_setup()
 
     def click_square(self, row, col):
-        print("click")
+        print("left click")
         if self.game.is_mine(row, col):
             self.real_board[row][col].config(image=self.mine_img)
             print("mine hit game over")
@@ -212,7 +198,26 @@ class MineSweeperGUI:
                 temp_list.append(temp_button)
             self.real_board.append(temp_list)
 
+        for r in range(self.side):
+            for c in range(self.side):
+                # setting up args passed
+                self.real_board[r][c].config(command=partial(self.click_square, r, c))
+                self.real_board[r][c].grid(column=c, row=r)
+                # bind right click for flagging
+                self.real_board[r][c].bind("<Button-2>", self.flag_a_mine)
+                self.real_board[r][c].bind("<Button-3>", self.flag_a_mine)
+
+    def flag_a_mine(self, event):
+        print("right click")
+        # event.widget access what was right clicked
+        if event.widget.cget("image") == str(self.square_img):
+            event.widget.configure(image=self.flag_img)
+        elif event.widget.cget("image") == str(self.flag_img):
+            event.widget.configure(image=self.square_img)
+
     def load_images(self):
+
+        self.flag_img = PhotoImage(file="./images/FlagPNG.png")
         self.square_img = PhotoImage(file="./images/RaisedSquarePNG.png")
         self.mine_img = PhotoImage(file="./images/MinePNG.png")
         self.zero_img = PhotoImage(file="./images/GreySquarePNG.png")
