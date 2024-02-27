@@ -11,6 +11,8 @@ class MineSweeper:
     def __init__(self):
         self.board = []
 
+        self.mines_list = []
+
     def make_board(self, side):
         for r in range(side):
             temp_list = []
@@ -26,6 +28,7 @@ class MineSweeper:
                 ran_row = random.randint(0, side - 1)
                 ran_col = random.randint(0, side - 1)
             self.board[ran_row][ran_col] = "*"
+            self.mines_list.append((ran_row, ran_col))
 
     def check_move_available(self, row, col):
         if self.board[row][col] == " ":
@@ -163,3 +166,6 @@ class MineSweeper:
 
     def get_num_mines(self):
         return self.num_mines
+
+    def get_mines_locations(self):
+        return self.mines_list

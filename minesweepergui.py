@@ -28,6 +28,8 @@ class MineSweeperGUI:
 
         self.moves_left = 0
 
+        self.mines_list = []
+
 
         # last thing to do
         self.intro_menu()
@@ -91,18 +93,21 @@ class MineSweeperGUI:
             self.game.set_difficulty("easy")
             self.side = self.game.get_side()
             self.number_of_mines = self.game.get_num_mines()
+            self.mines_list = self.game.get_mines_locations()
             self.moves_left = (self.side * self.side) - self.number_of_mines
             self.easy_setup()
         elif difficulty == "medium":
             self.game.set_difficulty("medium")
             self.side = self.game.get_side()
             self.number_of_mines = self.game.get_num_mines()
+            self.mines_list = self.game.get_mines_locations()
             self.moves_left = (self.side * self.side) - self.number_of_mines
             self.medium_setup()
         elif difficulty == "hard":
             self.game.set_difficulty("hard")
             self.side = self.game.get_side()
             self.number_of_mines = self.game.get_num_mines()
+            self.mines_list = self.game.get_mines_locations()
             self.moves_left = (self.side * self.side) - self.number_of_mines
             self.hard_setup()
 
@@ -172,6 +177,8 @@ class MineSweeperGUI:
             for c in range(self.side):
                 self.real_board[r][c].config(command=0)
 
+        self.reveal_mines()
+
         self.over_label = Label(text="GAME OVER", font=FONT)
         grid_loc = int((self.side / 2) - 1)
         self.over_label.grid(columnspan=4, row=grid_loc, column=grid_loc-1)
@@ -212,6 +219,10 @@ class MineSweeperGUI:
             event.widget.configure(image=self.flag_img)
         elif event.widget.cget("image") == str(self.flag_img):
             event.widget.configure(image=self.square_img)
+
+    def reveal_mines(self):
+        for tuple in self.mines_list:
+            self.real_board[tuple[0]][tuple[1]].config(image=self.mine_img)
 
     def load_images(self):
 
