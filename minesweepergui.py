@@ -18,6 +18,7 @@ class MineSweeperGUI:
 
         self.game = MineSweeper()
 
+        self.images_list = []
         self.load_images()
 
 
@@ -181,7 +182,7 @@ class MineSweeperGUI:
 
         self.over_label = Label(text="GAME OVER", font=FONT)
         grid_loc = int((self.side / 2) - 1)
-        self.over_label.grid(columnspan=4, row=grid_loc, column=grid_loc-1)
+        self.over_label.grid(columnspan=5, rowspan=2,  row=grid_loc, column=grid_loc-1)
 
     def game_won(self):
         print("game is over because player won")
@@ -200,7 +201,7 @@ class MineSweeperGUI:
         for r in range(side):
             temp_list = []
             for c in range(side):
-                temp_button = Button(image=self.square_img, highlightthickness=0)
+                temp_button = Button(image=self.square_img, highlightthickness=0, borderwidth=0)
                 temp_list.append(temp_button)
             self.real_board.append(temp_list)
 
@@ -225,27 +226,20 @@ class MineSweeperGUI:
             self.real_board[tuple[0]][tuple[1]].config(image=self.mine_img)
 
     def load_images(self):
+        self.load_filenames()
 
         self.flag_img = PhotoImage(file="./images/FlagPNG.png")
         self.square_img = PhotoImage(file="./images/RaisedSquarePNG.png")
         self.mine_img = PhotoImage(file="./images/MinePNG.png")
-        self.zero_img = PhotoImage(file="./images/GreySquarePNG.png")
-        self.one_img = PhotoImage(file="./images/OneMinePNG.png")
-        self.two_img = PhotoImage(file="./images/TwoMinesPNG.png")
-        self.three_img = PhotoImage(file="./images/ThreeMinesPNG.png")
-        self.four_img = PhotoImage(file="./images/FourMinesPNG.png")
-        self.five_img = PhotoImage(file="./images/FiveMinesPNG.png")
-        self.six_img = PhotoImage(file="./images/SixMinesPNG.png")
-        self.seven_img = PhotoImage(file="./images/SevenMinesPNG.png")
-        self.eight_img = PhotoImage(file="./images/EightMinesPNG.png")
 
-        self.images_list = []
-        self.images_list.append(self.zero_img)
-        self.images_list.append(self.one_img)
-        self.images_list.append(self.two_img)
-        self.images_list.append(self.three_img)
-        self.images_list.append(self.four_img)
-        self.images_list.append(self.five_img)
-        self.images_list.append(self.six_img)
-        self.images_list.append(self.seven_img)
-        self.images_list.append(self.eight_img)
+        filepath = "./images/"
+
+        for filename in self.mine_filename_list:
+            fullfilename = filepath + filename
+            temp_img = PhotoImage(file=fullfilename)
+            self.images_list.append(temp_img)
+
+
+    def load_filenames(self):
+        with open(file="./notes/minefilenames.txt", mode="r") as file:
+            self.mine_filename_list = file.read().splitlines()
