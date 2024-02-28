@@ -13,6 +13,11 @@ class MineSweeper:
 
         self.mines_list = []
 
+    def restart(self):
+        self.board = []
+        self.mines_list = []
+
+
     def make_board(self, side):
         for r in range(side):
             temp_list = []
