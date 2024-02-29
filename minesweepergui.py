@@ -22,9 +22,9 @@ class MineSweeperGUI:
         self.load_images()
         self.make_end_display()
 
-
         self.display_board = []
 
+        self.difficulty = "none"
         self.number_of_mines = 0
         self.side = 0
 
@@ -77,51 +77,22 @@ class MineSweeperGUI:
         self.medium_label.grid_forget()
         self.hard_label.grid_forget()
 
-    def easy_setup(self):
-        self.remove_intro_menu()
-        height = self.side * 25
-        width = self.side *25
-        self.window.minsize(height=height, width=width)
-        self.build_button_board(self.side, self.number_of_mines)
-
-    def medium_setup(self):
+    def setup(self):
         self.remove_intro_menu()
         height = self.side * 25
         width = self.side * 25
         self.window.minsize(height=height, width=width)
         self.build_button_board(self.side, self.number_of_mines)
-
-    def hard_setup(self):
-        self.remove_intro_menu()
-        height = self.side * 25
-        width = self.side * 25
-        self.window.minsize(height=height, width=width)
-        self.build_button_board(self.side, self.number_of_mines)
-
-
 
     def choose_difficulty(self, difficulty):
-        if difficulty == "easy":
-            self.game.set_difficulty("easy")
-            self.side = self.game.get_side()
-            self.number_of_mines = self.game.get_num_mines()
-            self.mines_list = self.game.get_mines_locations()
-            self.moves_left = (self.side * self.side) - self.number_of_mines
-            self.easy_setup()
-        elif difficulty == "medium":
-            self.game.set_difficulty("medium")
-            self.side = self.game.get_side()
-            self.number_of_mines = self.game.get_num_mines()
-            self.mines_list = self.game.get_mines_locations()
-            self.moves_left = (self.side * self.side) - self.number_of_mines
-            self.medium_setup()
-        elif difficulty == "hard":
-            self.game.set_difficulty("hard")
-            self.side = self.game.get_side()
-            self.number_of_mines = self.game.get_num_mines()
-            self.mines_list = self.game.get_mines_locations()
-            self.moves_left = (self.side * self.side) - self.number_of_mines
-            self.hard_setup()
+        self.difficulty = difficulty
+        self.game.set_difficulty(self.difficulty)
+        self.side = self.game.get_side()
+        self.number_of_mines = self.game.get_num_mines()
+        self.mines_list = self.game.get_mines_locations()
+        self.moves_left = (self.side * self.side) - self.number_of_mines
+        self.setup()
+
 
     def click_square(self, row, col):
         if self.game.is_mine(row, col):
@@ -212,8 +183,9 @@ class MineSweeperGUI:
     def restart(self):
         self.remove_end_display()
         self.empty_button_board()
-        self.refresh_intro_menu()
         self.game.restart()
+        self.refresh_intro_menu()
+
 
     def make_end_display(self):
         pass
@@ -246,7 +218,14 @@ class MineSweeperGUI:
                 self.real_board[row][col].destroy()
         self.real_board = []
 
+    def make_top_display(self):
+        self.top_display = Canvas(width=(self.side * 25), height=50, highlightthickness=0, )
 
+        self.mines_display = self.top_display.create_text(30, 25, text=f"M {self.number_of_mines}")
+
+        self.smile_display = self.top_display.create_image(70, 20, image=self.smile_img)
+
+        self.top_display.grid(columnspan=self.side, column=0, row=self.side)
     def flag_a_mine(self, event):
         # event.widget access what was right clicked
         if event.widget.cget("image") == str(self.square_img):
@@ -264,6 +243,8 @@ class MineSweeperGUI:
         self.flag_img = PhotoImage(file="./images/FlagPNG.png")
         self.square_img = PhotoImage(file="./images/RaisedSquarePNG.png")
         self.mine_img = PhotoImage(file="./images/MinePNG.png")
+
+        self.smile_img = PhotoImage(file="./images/SmileDisplayPNG.png")
 
         filepath = "./images/"
 
