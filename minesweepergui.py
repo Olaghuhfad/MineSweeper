@@ -40,13 +40,13 @@ class MineSweeperGUI:
         self.intro_label = Label(text="Welcome to Mine Sweeper", font=FONT)
         self.intro_label.grid(column=1, row=0, padx=30, pady=50)
 
-        self.easy_button = Button(text="Easy", font=FONT, command=lambda: self.choose_difficulty("easy"))
+        self.easy_button = Button(text="Easy", font=FONT, command=partial(self.choose_difficulty, "easy"))
         self.easy_button.grid(column=0, row=1, padx=50)
 
-        self.medium_button = Button(text="Medium", font=FONT, command=lambda: self.choose_difficulty("medium"))
+        self.medium_button = Button(text="Medium", font=FONT, command=partial(self.choose_difficulty, "medium"))
         self.medium_button.grid(column=1, row=1, )
 
-        self.hard_button = Button(text="Hard", font=FONT, command=lambda: self.choose_difficulty("hard"))
+        self.hard_button = Button(text="Hard", font=FONT, command=partial(self.choose_difficulty, "hard"))
         self.hard_button.grid(column=2, row=1, padx=50)
 
         self.easy_label = Label(text=f"{EASY_SIDE} x {EASY_SIDE}\n{EASY_MINES} mines", font=FONT)
@@ -82,7 +82,7 @@ class MineSweeperGUI:
         height = self.side * 25
         width = self.side * 25
         self.window.minsize(height=height, width=width)
-        self.build_button_board(self.side, self.number_of_mines)
+        self.build_display_board(self.side, self.number_of_mines)
 
     def choose_difficulty(self, difficulty):
         self.difficulty = difficulty
@@ -103,7 +103,7 @@ class MineSweeperGUI:
                 self.moves_left -= 1
                 minecount = self.game.count_adjacent_mines(row, col)
                 self.real_board[row][col].config(image=self.images_list[minecount])
-                self.real_board[row][col].config(command=0)
+                self.real_board[row][col].bind("<Button-1>", '')
                 self.game.board[row][col] = minecount
 
                 if self.moves_left == 0:
@@ -154,7 +154,7 @@ class MineSweeperGUI:
     def game_over(self):
         for r in range(self.side):
             for c in range(self.side):
-                self.real_board[r][c].config(command=0)
+                self.real_board[r][c].bind("<Button-1>", '')
 
         self.reveal_mines()
 
@@ -169,7 +169,7 @@ class MineSweeperGUI:
     def game_won(self):
         for r in range(self.side):
             for c in range(self.side):
-                self.real_board[r][c].config(command=0)
+                self.real_board[r][c].bind("<Button-1>", '')
 
         self.over_label = Label(text="YOU WIN", font=FONT)
         self.restart_button = Button(text="RESTART", font=FONT, command=self.restart)
@@ -194,23 +194,35 @@ class MineSweeperGUI:
         self.over_label.grid_forget()
         self.restart_button.grid_forget()
 
-    def build_button_board(self, side, mines):
+    def build_display_board(self, side, mines):
         self.real_board = []
-        for r in range(side):
+        for row in range(side):
             temp_list = []
-            for c in range(side):
-                temp_button = Button(image=self.square_img, highlightthickness=0, borderwidth=0)
-                temp_list.append(temp_button)
+            for col in range(side):
+                temp_label = Label(height=25, width=25, image=self.square_img, borderwidth=0)
+                # binding left click
+                temp_label.bind("<Button-1>", self.left_click)
+                # bind right click flagging
+                temp_label.bind("<Button-2>", self.flag_a_mine)
+                temp_label.bind("<Button-3>", self.flag_a_mine)
+                temp_label.grid(column=col, row=row)
+                temp_list.append(temp_label)
             self.real_board.append(temp_list)
 
+        # old way of binding right click
+        # for row in range(self.side):
+        #     for col in range(self.side):
+        #         # bind right click for flagging
+        #         self.real_board[row][col].bind("<Button-2>", self.flag_a_mine)
+        #         self.real_board[row][col].bind("<Button-3>", self.flag_a_mine)
+
+    def left_click(self, event):
         for r in range(self.side):
             for c in range(self.side):
-                # setting up args passed
-                self.real_board[r][c].config(command=partial(self.click_square, r, c))
-                self.real_board[r][c].grid(column=c, row=r)
-                # bind right click for flagging
-                self.real_board[r][c].bind("<Button-2>", self.flag_a_mine)
-                self.real_board[r][c].bind("<Button-3>", self.flag_a_mine)
+                if self.real_board[r][c] == event.widget:
+                    row = r
+                    col = c
+        self.click_square(row, col)
 
     def empty_button_board(self):
         for row in range(self.side):
@@ -234,8 +246,8 @@ class MineSweeperGUI:
             event.widget.configure(image=self.square_img)
 
     def reveal_mines(self):
-        for tuple in self.mines_list:
-            self.real_board[tuple[0]][tuple[1]].config(image=self.mine_img)
+        for tup in self.mines_list:
+            self.real_board[tup[0]][tup[1]].config(image=self.mine_img)
 
     def load_images(self):
         self.load_filenames()
