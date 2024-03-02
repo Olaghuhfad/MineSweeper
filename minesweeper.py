@@ -1,11 +1,14 @@
 import random
 
-EASY_SIDE = 6
-EASY_MINES = 6
-MEDIUM_SIDE = 12
-MEDIUM_MINES = 24
-HARD_SIDE = 20
-HARD_MINES = 66
+EASY_WIDTH = 9
+EASY_HEIGHT = 9
+EASY_MINES = 10
+MEDIUM_HEIGHT = 16
+MEDIUM_WIDTH = 16
+MEDIUM_MINES = 40
+HARD_HEIGHT = 16
+HARD_WIDTH = 30
+HARD_MINES = 99
 class MineSweeper:
 
     def __init__(self):
@@ -13,25 +16,31 @@ class MineSweeper:
 
         self.mines_list = []
 
+        self.height = 0
+        self.width = 0
+        self.number_of_mines = 0
+
+
     def restart(self):
         self.board = []
         self.mines_list = []
 
 
-    def make_board(self, side):
-        for r in range(side):
+    def make_board(self):
+        for row in range(self.height):
             temp_list = []
-            for c in range(side):
+            for col in range(self.width):
                 temp_list.append(" ")
             self.board.append(temp_list)
 
-    def place_mines(self, side, num):
-        for i in range(num):
-            ran_row = random.randint(0, side-1)
-            ran_col = random.randint(0, side-1)
+
+    def place_mines(self):
+        for i in range(self.number_of_mines):
+            ran_row = random.randint(0, self.height - 1)
+            ran_col = random.randint(0, self.width - 1)
             while self.board[ran_row][ran_col] == "*":
-                ran_row = random.randint(0, side - 1)
-                ran_col = random.randint(0, side - 1)
+                ran_row = random.randint(0, self.height - 1)
+                ran_col = random.randint(0, self.width - 1)
             self.board[ran_row][ran_col] = "*"
             self.mines_list.append((ran_row, ran_col))
 
@@ -48,30 +57,33 @@ class MineSweeper:
             return False
 
     def is_valid_move(self, row, col):
-        if (row >= 0) and (row < self.side) and (col >= 0) and (col < self.side):
+        if (row >= 0) and (row < self.height) and (col >= 0) and (col < self.width):
             return True
         else:
             return False
 
     def set_difficulty(self, difficulty):
         if difficulty == "easy":
-            self.side = EASY_SIDE
-            self.num_mines = EASY_MINES
-            self.make_board(self.side)
-            self.place_mines(self.side, self.num_mines)
-            self.moves_left = self.side * self.side
+            self.height = EASY_HEIGHT
+            self.width = EASY_WIDTH
+            self.number_of_mines = EASY_MINES
+            self.make_board()
+            self.place_mines()
+            self.moves_left = self.width * self.height
         elif difficulty == "medium":
-            self.side = MEDIUM_SIDE
-            self.num_mines = MEDIUM_MINES
-            self.make_board(self.side)
-            self.place_mines(self.side, self.num_mines)
-            self.moves_left = self.side * self.side
+            self.height = MEDIUM_HEIGHT
+            self.width = MEDIUM_WIDTH
+            self.number_of_mines = MEDIUM_MINES
+            self.make_board()
+            self.place_mines()
+            self.moves_left = self.width * self.height
         elif difficulty == "hard":
-            self.side = HARD_SIDE
-            self.num_mines = HARD_MINES
-            self.make_board(self.side)
-            self.place_mines(self.side, self.num_mines)
-            self.moves_left = self.side * self.side
+            self.height = HARD_HEIGHT
+            self.width = HARD_WIDTH
+            self.number_of_mines = HARD_MINES
+            self.make_board()
+            self.place_mines()
+            self.moves_left = self.width * self.height
 
         else:
             print("error")
@@ -166,11 +178,14 @@ class MineSweeper:
                     if self.check_move_available(row + 1, col - 1):
                         if not self.is_mine(row + 1, col - 1):
                             self.mine_sweep(row + 1, col - 1)
-    def get_side(self):
-        return self.side
 
+    def get_height(self):
+        return self.height
+
+    def get_width(self):
+        return self.width
     def get_num_mines(self):
-        return self.num_mines
+        return self.number_of_mines
 
     def get_mines_locations(self):
         return self.mines_list
