@@ -112,7 +112,7 @@ class MineSweeperGUI:
     def click_square(self, row, col):
         if self.game.is_mine(row, col):
             self.real_board[row][col].config(image=self.mine_img)
-            self.game_over()
+            self.game_over(row, col)
         else:
             if self.game.check_move_available(row, col):
                 self.moves_left -= 1
@@ -166,12 +166,13 @@ class MineSweeperGUI:
                             if not self.game.is_mine(row + 1, col - 1):
                                 self.click_square(row + 1, col - 1)
 
-    def game_over(self):
+    def game_over(self, row, col):
         for r in range(self.height):
             for c in range(self.width):
                 self.real_board[r][c].bind("<Button-1>", '')
 
         self.reveal_mines()
+        self.real_board[row][col].config(image=self.red_mine_img)
 
         self.over_label = Label(text="GAME OVER", font=FONT)
         self.restart_button = Button(text="RESTART", font=FONT, command=self.restart)
@@ -291,6 +292,7 @@ class MineSweeperGUI:
         self.flag_img = PhotoImage(file="./images/FlagPNG.png")
         self.square_img = PhotoImage(file="./images/RaisedSquarePNG.png")
         self.mine_img = PhotoImage(file="./images/MinePNG.png")
+        self.red_mine_img = PhotoImage(file="./images/MineRedPNG.png")
 
         self.smile_img = PhotoImage(file="./images/SmileDisplay40PNG.png")
 
