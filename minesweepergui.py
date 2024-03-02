@@ -4,6 +4,7 @@ from minesweeper import MineSweeper
 from functools import partial
 
 FONT = ("Courier", 14, "normal")
+DISPLAY_FONT = ("Courier", 16, "normal")
 EASY_SIDE = 9
 MEDIUM_SIDE = 16
 HARD_SIDE = 20
@@ -198,10 +199,10 @@ class MineSweeperGUI:
 
     def restart(self):
         self.remove_end_display()
+        self.remove_top_display()
         self.empty_button_board()
         self.game.restart()
         self.refresh_intro_menu()
-
 
     def make_end_display(self):
         pass
@@ -242,9 +243,9 @@ class MineSweeperGUI:
         self.real_board = []
 
     def make_top_display(self):
-        self.top_display = Canvas(width=(self.width * 25), height=50, highlightthickness=0, )
+        self.top_display = Canvas(width=(self.width * 25), height=55, highlightthickness=0, )
 
-        self.mines_display = self.top_display.create_text(30, 25, text=f"M {self.number_of_mines}")
+        self.mines_display = self.top_display.create_text(40, 25, text=f"M {self.number_of_mines}", font=DISPLAY_FONT)
 
         self.smile_display = self.top_display.create_image(70, 20, image=self.smile_img)
 
@@ -254,12 +255,17 @@ class MineSweeperGUI:
         if self.difficulty == "easy":
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"M {mines}")
+            # self.top_display.coords(self.mines_display, 40, 25)
+            self.top_display.coords(self.smile_display, 112, 25)
         elif self.difficulty == "medium":
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"M {mines}")
+            # self.top_display.coords(self.mines_display, 40, 25)
+            self.top_display.coords(self.smile_display, 200, 25)
         else:
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"M {mines}")
+            self.top_display.coords(self.smile_display, 375, 25)
 
     def remove_top_display(self):
         self.top_display.grid_forget()
