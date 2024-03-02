@@ -200,10 +200,15 @@ class MineSweeperGUI:
 
     def restart(self):
         self.remove_end_display()
+        self.reset_values()
         self.remove_top_display()
         self.empty_button_board()
         self.game.restart()
         self.refresh_intro_menu()
+
+    def reset_values(self):
+        self.number_of_mines = 0
+        self.number_of_flags = 0
 
     def make_end_display(self):
         pass
