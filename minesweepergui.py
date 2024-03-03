@@ -186,6 +186,8 @@ class MineSweeperGUI:
         r_row_loc = int((self.height / 2) + 1)
 
         self.restart_button.grid(columnspan=5, rowspan=2, row=r_row_loc, column=col_loc)
+
+        self.top_display.itemconfig(self.smile_display, image=self.dead_smile_img)
     def game_won(self):
         for r in range(self.height):
             for c in range(self.width):
@@ -212,6 +214,8 @@ class MineSweeperGUI:
     def reset_values(self):
         self.number_of_mines = 0
         self.number_of_flags = 0
+        self.flags_list = []
+        self.mines_list = []
 
     def make_end_display(self):
         pass
@@ -324,6 +328,7 @@ class MineSweeperGUI:
         self.incorrect_flag_img = PhotoImage(file="./images/IncorrectFlagPNG.png")
 
         self.smile_img = PhotoImage(file="./images/SmileDisplay40PNG.png")
+        self.dead_smile_img = PhotoImage(file="./images/DeadSmileDisplay40PNG.png")
 
         filepath = "./images/"
 
