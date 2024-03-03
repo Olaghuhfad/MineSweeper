@@ -45,6 +45,7 @@ class MineSweeperGUI:
         self.moves_left = 0
 
         self.mines_list = []
+        self.flags_list = []
 
 
         # last thing to do
@@ -280,18 +281,36 @@ class MineSweeperGUI:
         self.top_display.grid_forget()
 
     def flag_a_mine(self, event):
+        # find row and col of what was clicked
+        for r in range(self.height):
+            for c in range(self.width):
+                if self.real_board[r][c] == event.widget:
+                    row = r
+                    col = c
         # event.widget access what was right clicked
         if event.widget.cget("image") == str(self.square_img):
             event.widget.configure(image=self.flag_img)
             self.number_of_flags += 1
+            self.flags_list.append((row, col))
             self.refresh_top_display()
         elif event.widget.cget("image") == str(self.flag_img):
             event.widget.configure(image=self.square_img)
             self.number_of_flags -= 1
+            self.flags_list.remove((row, col))
             self.refresh_top_display()
 
     def reveal_mines(self):
-        for tup in self.mines_list:
+        correct_mines = set(self.mines_list) & set(self.flags_list)
+        incorrect_flags = set(self.flags_list) - set(self.mines_list)
+        missed_mines = set(self.mines_list) - set(self.flags_list)
+
+        for tup in correct_mines:
+            self.real_board[tup[0]][tup[1]].config(image=self.flag_img)
+
+        for tup in incorrect_flags:
+            self.real_board[tup[0]][tup[1]].config(image=self.incorrect_flag_img)
+
+        for tup in missed_mines:
             self.real_board[tup[0]][tup[1]].config(image=self.mine_img)
 
     def load_images(self):
@@ -301,6 +320,8 @@ class MineSweeperGUI:
         self.square_img = PhotoImage(file="./images/RaisedSquarePNG.png")
         self.mine_img = PhotoImage(file="./images/MinePNG.png")
         self.red_mine_img = PhotoImage(file="./images/MineRedPNG.png")
+
+        self.incorrect_flag_img = PhotoImage(file="./images/IncorrectFlagPNG.png")
 
         self.smile_img = PhotoImage(file="./images/SmileDisplay40PNG.png")
 
