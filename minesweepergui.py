@@ -5,6 +5,8 @@ from functools import partial
 
 FONT = ("Courier", 14, "normal")
 DISPLAY_FONT = ("Courier", 16, "normal")
+NUMBERS_FONT = ("Alarm Clock", 25, "normal")
+
 EASY_SIDE = 9
 MEDIUM_SIDE = 16
 HARD_SIDE = 20
@@ -251,7 +253,8 @@ class MineSweeperGUI:
     def make_top_display(self):
         self.top_display = Canvas(width=(self.width * 25), height=55, highlightthickness=0, )
 
-        self.mines_display = self.top_display.create_text(40, 25, text=f"M {self.number_of_mines}", font=DISPLAY_FONT)
+        self.rectangle = self.top_display.create_rectangle(10, 10, 70, 40, fill="black")
+        self.mines_display = self.top_display.create_text(40, 25, text=f"{self.number_of_mines}", font=NUMBERS_FONT, fill="red")
 
         self.smile_display = self.top_display.create_image(70, 20, image=self.smile_img)
 
@@ -260,17 +263,17 @@ class MineSweeperGUI:
     def refresh_top_display(self):
         if self.difficulty == "easy":
             mines = self.number_of_mines - self.number_of_flags
-            self.top_display.itemconfig(self.mines_display, text=f"M {mines}")
+            self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
             # self.top_display.coords(self.mines_display, 40, 25)
             self.top_display.coords(self.smile_display, 112, 25)
         elif self.difficulty == "medium":
             mines = self.number_of_mines - self.number_of_flags
-            self.top_display.itemconfig(self.mines_display, text=f"M {mines}")
+            self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
             # self.top_display.coords(self.mines_display, 40, 25)
             self.top_display.coords(self.smile_display, 200, 25)
         else:
             mines = self.number_of_mines - self.number_of_flags
-            self.top_display.itemconfig(self.mines_display, text=f"M {mines}")
+            self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
             self.top_display.coords(self.smile_display, 375, 25)
 
     def remove_top_display(self):
