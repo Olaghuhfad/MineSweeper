@@ -44,8 +44,12 @@ class MineSweeperGUI:
 
         self.moves_left = 0
 
+        self.timer_number = 0
+
         self.mines_list = []
         self.flags_list = []
+
+        self.timer_on = False
 
 
         # last thing to do
@@ -100,6 +104,8 @@ class MineSweeperGUI:
         self.build_display_board()
         self.make_top_display()
         self.refresh_top_display()
+        self.timer_on = True
+        self.update_timer()
 
     def choose_difficulty(self, difficulty):
         self.difficulty = difficulty
@@ -188,6 +194,7 @@ class MineSweeperGUI:
         self.restart_button.grid(columnspan=5, rowspan=2, row=r_row_loc, column=col_loc)
 
         self.top_display.itemconfig(self.smile_display, image=self.dead_smile_img)
+        self.timer_on = False
     def game_won(self):
         for r in range(self.height):
             for c in range(self.width):
@@ -202,6 +209,7 @@ class MineSweeperGUI:
         r_row_loc = int((self.height / 2) + 1)
         self.restart_button.grid(columnspan=5, rowspan=2, row=r_row_loc, column=col_loc)
 
+        self.timer_on = False
 
     def restart(self):
         self.remove_end_display()
@@ -216,6 +224,7 @@ class MineSweeperGUI:
         self.number_of_flags = 0
         self.flags_list = []
         self.mines_list = []
+        self.timer_number = 0
 
     def make_end_display(self):
         pass
@@ -226,7 +235,7 @@ class MineSweeperGUI:
 
     def build_display_board(self):
         self.real_board = []
-        for row in range(self.height):
+        for row in range(1, self.height + 1):
             temp_list = []
             for col in range(self.width):
                 temp_label = Label(height=25, width=25, image=self.square_img, borderwidth=0)
@@ -263,7 +272,11 @@ class MineSweeperGUI:
 
         self.smile_display = self.top_display.create_image(70, 20, image=self.smile_img)
 
-        self.top_display.grid(columnspan=self.width, column=0, row=self.height)
+        self.rectangle2 = self.top_display.create_rectangle(330, 10, 390, 40, fill="black")
+
+        self.timer_display = self.top_display.create_text(360, 25, text="001", font=NUMBERS_FONT, fill="red")
+
+        self.top_display.grid(columnspan=self.width, column=0, row=0)
 
     def refresh_top_display(self):
         if self.difficulty == "easy":
@@ -271,18 +284,32 @@ class MineSweeperGUI:
             self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
             # self.top_display.coords(self.mines_display, 40, 25)
             self.top_display.coords(self.smile_display, 112, 25)
+            self.top_display.coords(self.rectangle2, 150, 10, 210, 40)
+            self.top_display.coords(self.timer_display, 180, 25)
         elif self.difficulty == "medium":
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
             # self.top_display.coords(self.mines_display, 40, 25)
             self.top_display.coords(self.smile_display, 200, 25)
+            self.top_display.coords(self.rectangle2, 330, 10, 390, 40)
         else:
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
             self.top_display.coords(self.smile_display, 375, 25)
+            self.top_display.coords(self.rectangle, 20, 10, 80, 40)
+            self.top_display.coords(self.mines_display, 50, 25)
+            self.top_display.coords(self.rectangle2, 660, 10, 720, 40)
+            self.top_display.coords(self.timer_display, 690, 25)
+        self.top_display.itemconfig(self.timer_display, text=f"{self.timer_number:03d}")
 
     def remove_top_display(self):
         self.top_display.grid_forget()
+
+    def update_timer(self):
+        if self.timer_on:
+            self.timer_number += 1
+            self.refresh_top_display()
+            self.window.after(1000, self.update_timer)
 
     def flag_a_mine(self, event):
         # find row and col of what was clicked
