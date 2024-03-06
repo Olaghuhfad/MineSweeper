@@ -209,6 +209,7 @@ class MineSweeperGUI:
         r_row_loc = int((self.height / 2) + 1)
         self.restart_button.grid(columnspan=5, rowspan=2, row=r_row_loc, column=col_loc)
 
+        self.top_display.itemconfig(self.smile_display, image=self.sunglasses_smile_img)
         self.timer_on = False
 
     def restart(self):
@@ -371,6 +372,7 @@ class MineSweeperGUI:
 
         self.smile_img = PhotoImage(file="./images/SmileDisplay40PNG.png")
         self.dead_smile_img = PhotoImage(file="./images/DeadSmileDisplay40PNG.png")
+        self.sunglasses_smile_img = PhotoImage(file="./images/SmileDisplaySunglassesPNG.png")
 
         filepath = "./images/"
 
