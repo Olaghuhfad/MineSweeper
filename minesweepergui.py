@@ -28,11 +28,11 @@ class MineSweeperGUI:
 
         self.game = MineSweeper()
 
-        self.images_list = []
+        self.number_images_list = []
         self.load_images()
         self.make_end_display()
 
-        self.display_board = []
+        self.real_board = []
 
         self.difficulty = "none"
         self.number_of_mines = 0
@@ -126,7 +126,7 @@ class MineSweeperGUI:
             if self.game.check_move_available(row, col):
                 self.moves_left -= 1
                 minecount = self.game.count_adjacent_mines(row, col)
-                self.real_board[row][col].config(image=self.images_list[minecount])
+                self.real_board[row][col].config(image=self.number_images_list[minecount])
                 self.real_board[row][col].bind("<Button-1>", '')
                 self.game.board[row][col] = minecount
 
@@ -312,6 +312,7 @@ class MineSweeperGUI:
             self.window.after(1000, self.update_timer)
 
     def flag_a_mine(self, event):
+        '''allows player to flag squares they think are a mine'''
         # find row and col of what was clicked
         for r in range(self.height):
             for c in range(self.width):
@@ -324,15 +325,27 @@ class MineSweeperGUI:
             self.number_of_flags += 1
             self.flags_list.append((row, col))
             self.refresh_top_display()
+            # unbind left click so player can't click flags by accident
+            self.real_board[row][col].bind("<Button-1>", '')
         elif event.widget.cget("image") == str(self.flag_img):
             event.widget.configure(image=self.square_img)
             self.number_of_flags -= 1
             self.flags_list.remove((row, col))
             self.refresh_top_display()
+            # rebind left click so square can be clicked again
+            self.real_board[row][col].bind("<Button-1>", self.left_click)
+
+
 
     def reveal_mines(self):
+        '''when game over needs to reveal mines missed,
+        keep correctly flagged mines as flags,
+        and display a cross over incorrect flags'''
+        # find matches in the list of mines and list of flags to find correctly flagged mines
         correct_mines = set(self.mines_list) & set(self.flags_list)
+        # remove mines from list of flags to find incorrect flags
         incorrect_flags = set(self.flags_list) - set(self.mines_list)
+        # remove flag list from mine list to find mines that were not flagged
         missed_mines = set(self.mines_list) - set(self.flags_list)
 
         for tup in correct_mines:
@@ -345,10 +358,12 @@ class MineSweeperGUI:
             self.real_board[tup[0]][tup[1]].config(image=self.mine_img)
 
     def load_images(self):
+        '''all images are made here'''
         self.load_filenames()
 
         self.flag_img = PhotoImage(file="./images/FlagPNG.png")
         self.square_img = PhotoImage(file="./images/RaisedSquarePNG.png")
+
         self.mine_img = PhotoImage(file="./images/MinePNG.png")
         self.red_mine_img = PhotoImage(file="./images/MineRedPNG.png")
 
@@ -359,12 +374,14 @@ class MineSweeperGUI:
 
         filepath = "./images/"
 
+        # loops through the filename list to create the number images in a list
         for filename in self.mine_filename_list:
             fullfilename = filepath + filename
             temp_img = PhotoImage(file=fullfilename)
-            self.images_list.append(temp_img)
+            self.number_images_list.append(temp_img)
 
 
     def load_filenames(self):
+        '''gets names of number images and puts it into a list'''
         with open(file="./notes/minefilenames.txt", mode="r") as file:
             self.mine_filename_list = file.read().splitlines()
