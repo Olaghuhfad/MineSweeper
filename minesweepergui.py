@@ -30,7 +30,6 @@ class MineSweeperGUI:
 
         self.number_images_list = []
         self.load_images()
-        self.make_end_display()
 
         self.real_board = []
 
@@ -51,33 +50,22 @@ class MineSweeperGUI:
 
         self.timer_on = False
 
-
         # last thing to do
         self.intro_menu()
 
     def intro_menu(self):
+        '''creates the intro menu/main menu'''
         self.intro_label = Label(text="Welcome to Mine Sweeper", font=FONT)
-        self.intro_label.grid(column=1, row=0, padx=30, pady=50)
-
         self.easy_button = Button(text="Easy", font=FONT, command=partial(self.choose_difficulty, "easy"))
-        self.easy_button.grid(column=0, row=1, padx=50)
-
         self.medium_button = Button(text="Medium", font=FONT, command=partial(self.choose_difficulty, "medium"))
-        self.medium_button.grid(column=1, row=1, )
-
         self.hard_button = Button(text="Hard", font=FONT, command=partial(self.choose_difficulty, "hard"))
-        self.hard_button.grid(column=2, row=1, padx=50)
-
         self.easy_label = Label(text=f"{EASY_WIDTH} x {EASY_HEIGHT}\n{EASY_MINES} mines", font=FONT)
-        self.easy_label.grid(column=0, row=2, pady=50)
-
         self.medium_label = Label(text=f"{MEDIUM_WIDTH} x {MEDIUM_HEIGHT}\n{MEDIUM_MINES} mines", font=FONT)
-        self.medium_label.grid(column=1, row=2, pady=50)
-
         self.hard_label = Label(text=f"{HARD_WIDTH} x {HARD_HEIGHT}\n{HARD_MINES} mines", font=FONT)
-        self.hard_label.grid(column=2, row=2, pady=50)
+        self.grid_intro_menu()
 
-    def refresh_intro_menu(self):
+    def grid_intro_menu(self):
+        '''puts the main menu widgets back in the window using grid'''
         self.window.minsize(width=500, height=300)
         self.intro_label.grid(column=1, row=0, padx=30, pady=50)
         self.easy_button.grid(column=0, row=1, padx=50)
@@ -88,6 +76,8 @@ class MineSweeperGUI:
         self.hard_label.grid(column=2, row=2, pady=50)
 
     def remove_intro_menu(self):
+        '''removes the intro menu using grid forget. so that when the
+        menu is needed again the widgets can just be put on the grid again'''
         self.intro_label.grid_forget()
         self.easy_button.grid_forget()
         self.medium_button.grid_forget()
@@ -96,18 +86,8 @@ class MineSweeperGUI:
         self.medium_label.grid_forget()
         self.hard_label.grid_forget()
 
-    def setup(self):
-        self.remove_intro_menu()
-        height = self.height * 25
-        width = self.width * 25
-        self.window.minsize(height=height, width=width)
-        self.build_display_board()
-        self.make_top_display()
-        self.refresh_top_display()
-        self.timer_on = True
-        self.update_timer()
-
     def choose_difficulty(self, difficulty):
+        '''the function that sets the difficulty of the game'''
         self.difficulty = difficulty
         self.game.set_difficulty(self.difficulty)
         self.height = self.game.get_height()
@@ -118,7 +98,25 @@ class MineSweeperGUI:
         self.setup()
 
 
+    def setup(self):
+        '''called once the difficulty is set. build the display board and the top display'''
+        self.remove_intro_menu()
+        height = self.height * 25
+        width = self.width * 25
+        self.window.minsize(height=height, width=width)
+        self.build_display_board()
+        self.make_top_display()
+        self.refresh_top_display()
+        self.timer_on = True
+        self.update_timer()
+
+
+
+
     def click_square(self, row, col):
+        '''the main function of minesweeper. if player clicked a mine then it calls game over
+        if there are mines near the cell clicked then it changes the square to the number image required
+        if there are no mines nearby then it uses recursion to reveal all nearby no mine cells'''
         if self.game.is_mine(row, col):
             self.real_board[row][col].config(image=self.mine_img)
             self.game_over(row, col)
@@ -127,12 +125,16 @@ class MineSweeperGUI:
                 self.moves_left -= 1
                 minecount = self.game.count_adjacent_mines(row, col)
                 self.real_board[row][col].config(image=self.number_images_list[minecount])
+                # unbind clicking to stop player from clicking the same square
                 self.real_board[row][col].bind("<Button-1>", '')
+                self.real_board[row][col].bind("<Button-2>", '')
+                self.real_board[row][col].bind("<Button-3>", '')
                 self.game.board[row][col] = minecount
 
                 if self.moves_left == 0:
                     self.game_won()
 
+                # if there are no mines nearby then the game fills in the empty areas for the player
                 if minecount == 0:
                     # NORTH (row - 1, col)
                     if self.game.is_valid_move(row - 1, col):
@@ -176,9 +178,15 @@ class MineSweeperGUI:
                                 self.click_square(row + 1, col - 1)
 
     def game_over(self, row, col):
+        '''called when the player loses by pressing a mine. unbinds mouse clicks.
+        calls reveal mines. creates a game over label and restart button. stops timer.
+        changes the image of the top display smiley'''
+        # unbind the labels so player can't click on things after game over
         for r in range(self.height):
             for c in range(self.width):
                 self.real_board[r][c].bind("<Button-1>", '')
+                self.real_board[r][c].bind("<Button-2>", '')
+                self.real_board[r][c].bind("<Button-3>", '')
 
         self.reveal_mines()
         self.real_board[row][col].config(image=self.red_mine_img)
@@ -188,6 +196,7 @@ class MineSweeperGUI:
 
         row_loc = int((self.height / 2) - 1)
         col_loc = int((self.width / 2) -2)
+
         self.over_label.grid(columnspan=5, rowspan=2, row=row_loc, column=col_loc)
         r_row_loc = int((self.height / 2) + 1)
 
@@ -196,45 +205,59 @@ class MineSweeperGUI:
         self.top_display.itemconfig(self.smile_display, image=self.dead_smile_img)
         self.timer_on = False
     def game_won(self):
+        '''called when the player wins. unbind the labels so the player can't click on things
+        show the player they won and have a restart button. and stops the timer.
+        changes the image of the top display smiley'''
+        # unbind labels so the player can't click on things after the game ends
         for r in range(self.height):
             for c in range(self.width):
                 self.real_board[r][c].bind("<Button-1>", '')
+                self.real_board[r][c].bind("<Button-2>", '')
+                self.real_board[r][c].bind("<Button-3>", '')
 
+        # new labels are created here because then they display over the game
         self.over_label = Label(text="YOU WIN", font=FONT)
         self.restart_button = Button(text="RESTART", font=FONT, command=self.restart)
 
         row_loc = int((self.height / 2) - 1)
         col_loc = int((self.width / 2) - 2)
+
         self.over_label.grid(columnspan=5, rowspan=2, row=row_loc, column=col_loc)
         r_row_loc = int((self.height / 2) + 1)
+
         self.restart_button.grid(columnspan=5, rowspan=2, row=r_row_loc, column=col_loc)
 
         self.top_display.itemconfig(self.smile_display, image=self.sunglasses_smile_img)
+        # stop the timer
         self.timer_on = False
 
     def restart(self):
+        '''used to restart the game'''
         self.remove_end_display()
         self.reset_values()
         self.remove_top_display()
         self.empty_button_board()
         self.game.restart()
-        self.refresh_intro_menu()
+        self.grid_intro_menu()
+
+
 
     def reset_values(self):
+        '''used on restart to reset various variables'''
         self.number_of_mines = 0
         self.number_of_flags = 0
         self.flags_list = []
         self.mines_list = []
         self.timer_number = 0
 
-    def make_end_display(self):
-        pass
 
     def remove_end_display(self):
-        self.over_label.grid_forget()
-        self.restart_button.grid_forget()
+        '''destroys the end display on restart'''
+        self.over_label.destroy()
+        self.restart_button.destroy()
 
     def build_display_board(self):
+        '''creates the display board'''
         self.real_board = []
         for row in range(1, self.height + 1):
             temp_list = []
@@ -252,6 +275,8 @@ class MineSweeperGUI:
 
 
     def left_click(self, event):
+        '''when player clicks a label, finds which square they pressed
+        and runs the main minesweeper function'''
         for r in range(self.height):
             for c in range(self.width):
                 if self.real_board[r][c] == event.widget:
@@ -260,12 +285,14 @@ class MineSweeperGUI:
         self.click_square(row, col)
 
     def empty_button_board(self):
+        '''destroys all the widgets so the game can be restarted'''
         for row in range(self.height):
             for col in range(self.width):
                 self.real_board[row][col].destroy()
         self.real_board = []
 
     def make_top_display(self):
+        '''creates the top display'''
         self.top_display = Canvas(width=(self.width * 25), height=55, highlightthickness=0, )
 
         self.rectangle = self.top_display.create_rectangle(10, 10, 70, 40, fill="black")
@@ -280,17 +307,16 @@ class MineSweeperGUI:
         self.top_display.grid(columnspan=self.width, column=0, row=0)
 
     def refresh_top_display(self):
+        '''configures the top display based on what size the game is'''
         if self.difficulty == "easy":
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
-            # self.top_display.coords(self.mines_display, 40, 25)
             self.top_display.coords(self.smile_display, 112, 25)
             self.top_display.coords(self.rectangle2, 150, 10, 210, 40)
             self.top_display.coords(self.timer_display, 180, 25)
         elif self.difficulty == "medium":
             mines = self.number_of_mines - self.number_of_flags
             self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
-            # self.top_display.coords(self.mines_display, 40, 25)
             self.top_display.coords(self.smile_display, 200, 25)
             self.top_display.coords(self.rectangle2, 330, 10, 390, 40)
         else:
@@ -304,9 +330,12 @@ class MineSweeperGUI:
         self.top_display.itemconfig(self.timer_display, text=f"{self.timer_number:03d}")
 
     def remove_top_display(self):
+        '''removes the top display with grid forget'''
         self.top_display.grid_forget()
 
     def update_timer(self):
+        '''recursive function running the timer
+        game over or winning stops the timer'''
         if self.timer_on:
             self.timer_number += 1
             self.refresh_top_display()
@@ -320,7 +349,6 @@ class MineSweeperGUI:
                 if self.real_board[r][c] == event.widget:
                     row = r
                     col = c
-        # event.widget access what was right clicked
         if event.widget.cget("image") == str(self.square_img):
             event.widget.configure(image=self.flag_img)
             self.number_of_flags += 1
