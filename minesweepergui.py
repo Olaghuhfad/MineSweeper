@@ -49,6 +49,7 @@ class MineSweeperGUI:
         self.flags_list = []
 
         self.timer_on = False
+        self.first_click = True
 
         # last thing to do
         self.intro_menu()
@@ -110,8 +111,7 @@ class MineSweeperGUI:
         self.build_display_board()
         self.make_top_display()
         self.refresh_top_display()
-        self.timer_on = True
-        self.update_timer()
+
 
 
     def click_square(self, row, col):
@@ -282,6 +282,10 @@ class MineSweeperGUI:
     def left_click(self, event):
         '''when player clicks a label, finds which square they pressed
         and runs the main minesweeper function'''
+        if self.first_click:
+            self.first_click = False
+            self.timer_on = True
+            self.update_timer()
         for r in range(self.height):
             for c in range(self.width):
                 if self.real_board[r][c] == event.widget:
