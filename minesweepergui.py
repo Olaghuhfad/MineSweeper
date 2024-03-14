@@ -247,6 +247,7 @@ class MineSweeperGUI:
         self.grid_intro_menu()
 
 
+
     def reset_values(self):
         '''used on restart to reset various variables'''
         self.number_of_mines = 0
@@ -254,6 +255,8 @@ class MineSweeperGUI:
         self.flags_list = []
         self.mines_list = []
         self.timer_number = 0
+        self.timer_on = False
+        self.first_click = True
 
 
     def remove_end_display(self):
