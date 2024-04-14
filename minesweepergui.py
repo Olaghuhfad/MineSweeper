@@ -7,9 +7,6 @@ FONT = ("Courier", 14, "normal")
 DISPLAY_FONT = ("Courier", 16, "normal")
 NUMBERS_FONT = ("Alarm Clock", 25, "normal")
 
-EASY_SIDE = 9
-MEDIUM_SIDE = 16
-HARD_SIDE = 20
 
 EASY_WIDTH = 9
 EASY_HEIGHT = 9
@@ -52,30 +49,37 @@ class MineSweeperGUI:
         self.first_click = True
 
         # last thing to do
+        self.make_custom_menu()
+
         self.intro_menu()
+        self.grid_intro_menu()
 
     def intro_menu(self):
         '''creates the intro menu/main menu'''
         self.intro_label = Label(text="Welcome to Mine Sweeper", font=FONT)
-        self.easy_button = Button(text="Easy", font=FONT, command=partial(self.choose_difficulty, "easy"))
-        self.medium_button = Button(text="Medium", font=FONT, command=partial(self.choose_difficulty, "medium"))
-        self.hard_button = Button(text="Hard", font=FONT, command=partial(self.choose_difficulty, "hard"))
+        self.easy_button = Button(text="Easy", font=FONT, command=partial(self.setup, EASY_WIDTH, EASY_HEIGHT, EASY_MINES))
+        self.medium_button = Button(text="Medium", font=FONT, command=partial(self.setup, MEDIUM_WIDTH, MEDIUM_HEIGHT, MEDIUM_MINES))
+        self.hard_button = Button(text="Hard", font=FONT, command=partial(self.setup, HARD_WIDTH, HARD_HEIGHT, HARD_MINES))
         self.easy_label = Label(text=f"{EASY_WIDTH} x {EASY_HEIGHT}\n{EASY_MINES} mines", font=FONT)
         self.medium_label = Label(text=f"{MEDIUM_WIDTH} x {MEDIUM_HEIGHT}\n{MEDIUM_MINES} mines", font=FONT)
         self.hard_label = Label(text=f"{HARD_WIDTH} x {HARD_HEIGHT}\n{HARD_MINES} mines", font=FONT)
-        self.grid_intro_menu()
+        self.custom_button = Button(text="Custom", font=FONT, command=self.grid_custom_menu)
+
+
 
 
     def grid_intro_menu(self):
         '''puts the main menu widgets back in the window using grid'''
-        self.window.minsize(width=500, height=300)
         self.intro_label.grid(column=1, row=0, padx=30, pady=50)
         self.easy_button.grid(column=0, row=1, padx=50)
         self.medium_button.grid(column=1, row=1, )
         self.hard_button.grid(column=2, row=1, padx=50)
-        self.easy_label.grid(column=0, row=2, pady=50)
-        self.medium_label.grid(column=1, row=2, pady=50)
-        self.hard_label.grid(column=2, row=2, pady=50)
+        self.easy_label.grid(column=0, row=2, pady=20)
+        self.medium_label.grid(column=1, row=2, pady=20)
+        self.hard_label.grid(column=2, row=2, pady=20)
+
+        self.custom_button.grid(column=1, row=3, pady=20)
+
 
 
     def remove_intro_menu(self):
@@ -88,26 +92,55 @@ class MineSweeperGUI:
         self.easy_label.grid_forget()
         self.medium_label.grid_forget()
         self.hard_label.grid_forget()
+        self.custom_button.grid_forget()
 
+    def make_custom_menu(self):
+        self.width_label = Label(text="Width", font=FONT)
+        self.width_box = Entry(width=2, font=FONT)
+        self.width_box.insert(0, "30")
+        self.height_label = Label(text="Height", font=FONT)
+        self.height_box = Entry(width=2, font=FONT)
+        self.height_box.insert(0, "16")
+        self.mines_label = Label(text="Mines", font=FONT)
+        self.mines_box = Entry(width=3, font=FONT)
+        self.mines_box.insert(0, "100")
+        self.play_button = Button(text="Minesweeper", font=FONT, command=self.make_custom_game)
 
-    def choose_difficulty(self, difficulty):
-        '''the function that sets the difficulty of the game'''
-        self.difficulty = difficulty
-        self.game.set_difficulty(self.difficulty)
-        self.height = self.game.get_height()
-        self.width = self.game.get_width()
-        self.number_of_mines = self.game.get_num_mines()
+    def grid_custom_menu(self):
+        self.remove_intro_menu()
+        self.width_label.grid(column=0, row=0, pady=10, padx=20)
+        self.width_box.grid(column=0, row=1, pady=20)
+        self.height_label.grid(column=1, row=0, pady=10, padx=20)
+        self.height_box.grid(column=1, row=1, pady=20)
+        self.mines_label.grid(column=2, row=0, pady=10, padx=20)
+        self.mines_box.grid(column=2, row=1, pady=20)
+        self.play_button.grid(column=1, row=2, pady=20)
+
+    def remove_custom_menu(self):
+        self.width_label.grid_forget()
+        self.width_box.grid_forget()
+        self.height_label.grid_forget()
+        self.height_box.grid_forget()
+        self.mines_label.grid_forget()
+        self.mines_box.grid_forget()
+        self.play_button.grid_forget()
+
+    def make_custom_game(self):
+        width = int(self.width_box.get())
+        height = int(self.height_box.get())
+        mines = int(self.mines_box.get())
+        self.setup(width, height, mines)
+
+    def setup(self, width, height, mines):
+        '''sets up the game variables and then builds the display board, and top display'''
+        self.remove_intro_menu()
+        self.remove_custom_menu()
+        self.game.setup(width, height, mines)
+        self.width = width
+        self.height = height
+        self.number_of_mines = mines
         self.mines_list = self.game.get_mines_locations()
         self.moves_left = (self.width * self.height) - self.number_of_mines
-        self.setup()
-
-
-    def setup(self):
-        '''called once the difficulty is set. build the display board and the top display'''
-        self.remove_intro_menu()
-        height = self.height * 25
-        width = self.width * 25
-        self.window.minsize(height=height, width=width)
         self.build_display_board()
         self.make_top_display()
         self.refresh_top_display()
@@ -307,42 +340,30 @@ class MineSweeperGUI:
 
     def make_top_display(self):
         '''creates the top display'''
-        self.top_display = Canvas(width=(self.width * 25), height=55, highlightthickness=0, )
+        display_width = self.width * 25
+        self.top_display = Canvas(width=display_width, height=55, highlightthickness=0, )
 
         self.rectangle = self.top_display.create_rectangle(10, 10, 70, 40, fill="black")
         self.mines_display = self.top_display.create_text(40, 25, text=f"{self.number_of_mines}", font=NUMBERS_FONT, fill="red")
 
-        self.smile_display = self.top_display.create_image(70, 20, image=self.smile_img)
+        temp_smile_x = int(display_width / 2)
+        self.smile_display = self.top_display.create_image(temp_smile_x, 25, image=self.smile_img)
 
-        self.rectangle2 = self.top_display.create_rectangle(330, 10, 390, 40, fill="black")
+        temp_rect2_x = (display_width - 70)
+        self.rectangle2 = self.top_display.create_rectangle(temp_rect2_x, 10, (temp_rect2_x + 60), 40, fill="black")
 
-        self.timer_display = self.top_display.create_text(360, 25, text="001", font=NUMBERS_FONT, fill="red")
+        self.timer_display = self.top_display.create_text((display_width - 40), 25, text="001", font=NUMBERS_FONT, fill="red")
 
         self.top_display.grid(columnspan=self.width, column=0, row=0)
 
 
     def refresh_top_display(self):
         '''configures the top display based on what size the game is'''
-        if self.difficulty == "easy":
-            mines = self.number_of_mines - self.number_of_flags
-            self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
-            self.top_display.coords(self.smile_display, 112, 25)
-            self.top_display.coords(self.rectangle2, 150, 10, 210, 40)
-            self.top_display.coords(self.timer_display, 180, 25)
-        elif self.difficulty == "medium":
-            mines = self.number_of_mines - self.number_of_flags
-            self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
-            self.top_display.coords(self.smile_display, 200, 25)
-            self.top_display.coords(self.rectangle2, 330, 10, 390, 40)
-        else:
-            mines = self.number_of_mines - self.number_of_flags
-            self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
-            self.top_display.coords(self.smile_display, 375, 25)
-            self.top_display.coords(self.rectangle, 20, 10, 80, 40)
-            self.top_display.coords(self.mines_display, 50, 25)
-            self.top_display.coords(self.rectangle2, 660, 10, 720, 40)
-            self.top_display.coords(self.timer_display, 690, 25)
+        mines = self.number_of_mines - self.number_of_flags
         self.top_display.itemconfig(self.timer_display, text=f"{self.timer_number:03d}")
+        self.top_display.itemconfig(self.mines_display, text=f"{mines:03d}")
+
+
 
     def remove_top_display(self):
         '''removes the top display with grid forget'''
